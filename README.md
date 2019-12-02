@@ -1,4 +1,4 @@
-# MATH-6380
+# MATH-6388
 All project code from Dr. Hendrick's advanced statistical methods course (machine learning)
 
 Project 1 (group project with Michael Ingram and Danielle Totten):
