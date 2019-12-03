@@ -8,7 +8,7 @@ Project 2 (group project with Arlin Tawzer and Lee Panter):
    Explore error estimation and model selection with application to baseball batting statistics (code not included).
    
 Project 3 (group project with Lu Vy and Chandler James):
-   Create an R Markdown document (which includes both R and Python code) that provides a tutorial on k-means clustering with several      applications (code currently not included).
+   Create an R Markdown document (which includes both R and Python code) that provides a tutorial on k-means clustering with several      applications that can be made into an online tutorial (via html).
    
 Final Project (independent work):
     Explore spectral clustering (mathematically and conceptually) and implement the technique on a wheat data set
