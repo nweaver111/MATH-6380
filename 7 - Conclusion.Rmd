@@ -1,0 +1,34 @@
+---
+title: "Conclusion"
+author: "Lu Vy, Nicholas Weaver, Chandler Zachary"
+date: "November 15, 2018"
+output: html_document
+---
+## Conclusion
+
+Now you know the basics of K-means clustering, congratulations!
+
+Things that you have learned:
+
++ The concept behind K-means
++ How to use R and Python to run the analysis
++ How to determine the number of clusters to use
+
+Best of luck with your analysis!
+
+
+## References
+
+Hastie, T., Tibshirani, R., & Friedman, J. H. (2017). *The Elements of Statistical Learning: Data Mining, Inference, and Prediction.* New York, NY: Springer.
+
+James, G., Witten, D., Hastie, T., & Tibshirani, R. (2014). *An introduction to statistical learning with applications in R.* New York: Springer.
+
+Scikit-learn: Machine Learning in Python, Pedregosa *et al.,* JMLR 12, pp. 2825-2830, 2011.
+
+R. A. Fisher (1936). "The use of multiple measurements in taxonomic problems". Annals of Eugenics. 7 (2): 179-188.
+
+Edgar Anderson (1936). "The species problem in Iris". Annals of the Missouri Botanical Garden. 23 (3): 457-509.
+
+Hickey, Walt, et al. "The Ultimate Halloween Candy Power Ranking." FiveThirtyEight, FiveThirtyEight, 27 Oct. 2017, fivethirtyeight.com/features/the-ultimate-halloween-candy-power-ranking/
+
+Get the candy data [here](https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking)

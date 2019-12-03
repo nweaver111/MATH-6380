@@ -1,0 +1,102 @@
+---
+title: "K-Means Clustering using R"
+author: "Lu Vy, Nicholas Weaver, Chandler Zachary"
+date: "November 5, 2018"
+header-includes:
+   - \usepackage{bbm}
+   - \usepackage[utf8]{inputenc}
+   - \usepackage[english]{babel}
+   - \usepackage{amsthm}
+   - \usepackage{amsmath}
+   - \usepackage{mathtools}
+   - \usepackage{amssymb}
+   - \usepackage{commath}
+   - \usepackage{bm}
+   - \usepackage{bbm}
+output: html_document
+---
+```{r include = FALSE}
+setwd('C:/Users/Mr.Vyndictive/Dropbox/Machine Learning/Project 3/Data')
+data = read.csv('ToyData.csv')
+```
+
+## Introduction
+
+Suppose we collected data that looked something like this:
+
+```{r, echo = FALSE}
+plot(y~x, data = data, pch = 20)
+```
+
+Here, we see two "clusters" of points that seem to be concentrated around different centers.  A natural question is: Does the data come from two different populations? If indeed it does, then how do we separate the points accordingly? It's easy for us to see that one "cluster" is in the upper right corner and the other is in the lower left corner, but how would a computer see this?
+
+
+## K-Means Clustering in R
+
+### Preliminaries
+This tutorial assumes the reader is using R version 3.4.0 or higher. To cluster in R, we must first  change our working directory as needed:
+```{r, eval = FALSE}
+setwd('[path to folder containing data]')
+```
+
+Once that is done, we can import the data using the "read.csv" function. In our case, the data is named ToyData.csv. If you wish, you can refer to our data creation page to replicate our results.
+```{r}
+data = read.csv('ToyData.csv')
+```
+
+### Exploring the Data
+
+Before we start, it is always a good idea to understand what type of data we are working with. Let's look at the structure of our data
+
+```{r}
+str(data)
+```
+
+There seems to be three columns, each with 100 entries. Each observation has a factor attribute called "type," and two numerical attributes, "x," and "y." The first five rows of our data frame look like:
+
+```{r}
+head(data)
+```
+
+and the last five look like:
+
+```{r}
+tail(data)
+```
+
+It now looks as if each row is a point with coordinates "x" and "y." Each point is also labeled with a category, either "A" or "B", as designated in the "type" column.
+
+Now, we are ready to build our model.
+
+### The Model
+First, we extract the coordinates from our dataframe,
+```{r}
+coordinates = data[c('x','y')]
+```
+and we fit our model on that. We specify the seed so that you may attain the same results as us. 
+```{r}
+set.seed(0)
+model <- kmeans(coordinates, 2, nstart = 20)
+```
+The results are:
+```{r}
+model$cluster
+```
+and we can now visualize the clusters:
+```{r}
+plot(coordinates, col=model$cluster, pch = 20)
+```
+
+
+From a contingency table, we can see that K-Means clustering partitioned the data quite well:
+```{r}
+data$cluster <- model$cluster
+xtabs(~type+cluster,data=data)
+```
+
+# Conclusion
+
+In the actual world, data usually does not come with pre-specified labels like "A" and "B." It is the job of the data analyst to determine whether the data comes from the same or multiple different populations. Here, we present a contrived example using data we specifically fabricated to be from two different populations. Our goal was to re-create the partition given nothing other than the Euclidean distances between the points.
+
+In the real world, one may expect to find data with more than two dimensions, coming from more than two populations. Indeed, the number of populations may not even be known! In a later tutorial, we shall address the issue of what to do when this is the case.
+

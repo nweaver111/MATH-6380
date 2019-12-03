@@ -1,0 +1,84 @@
+---
+title: "Conceptual Understanding"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## What is K-means Clustering?
+
+Great question, it is often helpful to understand the *why* before getting lost in the *how*!\n
+
+### Understand the goal
+
+K-means clustering has a very specific goal that drives the method. Put simply, if two observations are relatively close to one another, they should be in the same cluster. \n
+
+The tricky part is determining what it means to be "close". Thankfully, K-means provides a rather intuitive approach to answer this question. The method suggests using squared Euclidean distance to measure how close distinct observations are to one another. This value can then be used in an *algorithm* (which we discuss later in this section) to determine the clusters.
+
+### Okay, but why *squared* Euclidean distance?
+
+To undestand this, we must begin with the motivation for Euclidean distance in general. The Euclidean distance between two points serves as a similarity measure between observations. Ideally, observations that are more similar will have a shorter distance between them. Thus, minimizing with respect to distances will ensure that a given cluster is composed of similar obserations! \n
+
+Lets explore this concept with an example. If the set of points $\{(x_1,y_1),(x_2,y_2),(x_3,y_3)\}$is a cluster, then the pairwise distances between each point should be small. That is, if
+$$
+d_{1,2} = \sqrt{(x_1-x_2)^2 + (y_1 - y_2)^2}
+$$
+and
+$$
+d_{1,3} = \sqrt{(x_1-x_3)^2 + (y_1 - y_3)^2}
+$$
+and
+$$
+d_{2,3} = \sqrt{(x_2-x_3)^2 + (y_2 - y_3)^2},
+$$
+then $d_{1,2} + d_{1,3} + d_{2,3}$ should be as small as possible.
+
+We decide to use the *squared* distance for simplicity (working with roots can get messy!). So we instead minimize $d_{1,2}^2 + d_{1,3}^2 + d_{2,3}^2$ to the same effect. 
+
+### Making Clusters
+
+Great, we know how to determine how similar two observations are to one another! K-means also offers a way to use this similarity to determine the different cluster assignments (but not the **number** of clusters!).\n
+
+K-means seeks to minimize the **within-cluster** variance over all clusters. The desire to make the observations within clusters as *close* as possible is met by minimizing the overal varaince in the clusters. \n
+
+Even though the idea is clear, it is no easy task to accurately implement the goal. One major difficulty is finding the pairwise differences for all of the pairs of observations (just think about doing this for a large data set, yikes!). Another complication involves determining what constitutes a cluster. Should each cluster have the same size (i.e. number of observations). Should there be a maximum distance that observations can be from one another to be included in the same cluster?'n
+
+There simply seems to be too many important decisions that are still unresolved. So how can we move forward?
+
+
+#### The Centroid
+Fortunately, there is a solution. It can be shown that minimizing $d_{1,2}^2 + d_{1,3}^2 + d_{2,3}^2$ is equivalent to minimizing
+$$
+(x_1 - \bar{x})^2 + (x_2 - \bar{x})^2 + (x_3 - \bar{x})^2 + (y_1 - \bar{y})^2 + (y_2 - \bar{y})^2 + (y_3 - \bar{y})^2,
+$$
+where
+$$
+\bar{x} = \frac{1}{3}\sum_{i=1}^{3}x_{i} \qquad \text{and} \qquad \bar{y} = \frac{1}{3}\sum_{i=1}^{3}y_{i}.
+$$
+
+The point $(\bar{x},\bar{y})$ is what is known as a "centroid." If it is true that the two clusters have different centers, then these centers should have their own coordinates, and each center should be the arithmetic mean of its cluster. Thus, we no longer need to worry about finding all of those pairwise distances! But how does this help?
+
+#### The K-Means Algorithm
+Using the centroid as a point of reference, as opposed to using every other point, greatly simplifies our calculations. We are able to use the following algorithm:
+
+1. Randomly assign the labels $1$ and $2$ to each of the observation points. This creates two tentative clusters.
+2. For each cluster, compute the centroid. That is, find the arithmetic means $(\bar{x}_1,\bar{y}_1)$ and $(\bar{x}_2,\bar{y}_2)$.
+3. Reassign each point to the closest centroid. These are the updated clusters.
+4. Repeat steps 2 and 3 until convergence. That is, repeat until the clusters stop changing, or until only a few points bounce back and forth.
+
+Since step 1 is random, we might get different results every time we run the algorithm. Thus, it is a good idea to run the algorithm several times and keep the best result. But what do we mean by best? We are trying to reduce the cumulative point-to-centroid distance:
+$$
+\sum_{i \in C_{k}}{\|\mathbf{x}_{i,k}-\bar{\mathbf{x}_k}\|^2}
+$$
+and so "best" in this context means the set of clusters for which the above quantity is smallest. An important note to make is that **we may never find the global minimum**. Every iteration returns a **local minimum**, and it is possible that none of the local minimums we find are actually the global minimum.
+
+### Now what?
+
+Well we have a decent approach for forming clusters! It may not be a global solution, but it still provides valid insights into a data set! So *lets apply it to a fabricated example to see it in action*.
+
+
+ 
+
+

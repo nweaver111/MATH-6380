@@ -1,0 +1,39 @@
+---
+title: "How to: K-means Clustering"
+authors: "Lu Vy,Nick Weaver, Chandler Zachary"
+date: "November 18, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Imagine you are tasked with grouping people together into various *clusters*. With no constraints this can be done easily; just randomly place people into groups. However, suppose you are instructed to group people so that like-minded individuals are assigned to the same group (as in market segmentation). This requires information from each individual that can be used to determine similarity, or dissimilarity, between people. This is a perfect scenario for a cluster analysis.\n
+
+There are many different ways to construct such an analysis. Differences tend to arise based upon:
+
+* The definition of similarity (or dissimilarity)
+* The overall goal of the analysis
+    + What type of groups are desirable?
+    + Should the relationship between clusters be considered (e.g. hierarchical clustering)?
+* Analysis-specific goals you want to meet (typically requires deeper understanding of the field of interest).
+    + How should two variables be related to one another?
+    + How are the results of the analysis going to be interpreted?
+    
+As you can imagine, finding the right clustering method can be tricky. This tutorial is not designed to answer that question. Rather, the goal is to provide insight into one of the most commonly used clustering methods: K-means clustering. We hope to learn more about the method and how to implement it in both RStudio and Python.\n
+
+Thus, in this tutorial we will experience the following:
+
+* A conceptual understanding of K-means clustering
+* An introduction to K-means clustering in R
+* An introdcution to K-means clustering in Python
+* Two examples of K-means clustering with real-world data
+* Identifying optimal number of clusters
+
+
+
+
+

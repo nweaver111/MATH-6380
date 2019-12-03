@@ -1,0 +1,116 @@
+---
+title: "Iris Example"
+author: "Lu Vy, Nick Weaver, & Chandler Zachary"
+date: "November 11, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Real World Data 1: The Iris Data
+
+Before moving on to choosing optimal clusters, we briefly illustrate k-means clustering using the famous Iris data set, which has four predictors. The four predictors are the widths and lengths of sepals and petals of three species of Iris flowers. We use this data set to illustrate k-means clustering with three clusters and to illustrate some of the challenges of clustering in a predictor space larger than two dimensions. One can access the dataset in Base R as shown in the code below.
+
+First, we access and load the iris data set.
+
+```{r}
+library(datasets)
+data(iris)
+head(iris)
+dim(iris)
+str(iris)
+```
+
+Next, we execute the k-means algorithm with three clusters since we have three iris species in the data. Observe that we do not include the Species variable in the clustering algorithm because we're classifying, not predicting.
+
+```{r}
+set.seed(0)
+km.irisCluster = kmeans(iris[, -5], 3, nstart = 30)
+```
+
+Let's check how well the algorithm clustered the species.
+
+```{r}
+iris$cluster = km.irisCluster$cluster
+xtabs(~ Species + cluster, data = iris)
+```
+
+It seems the algorithm clustered setosa without error, but it had trouble with versicolor and virginica. The contingency table is read horizontally: the setosa irises are correctly classified; two versicolor irises are incorrectly classified; and 14 virginica irises are incorrectly classified. It's important to remember that classification is unsupervised learning: we're not actually predicting here. However, sometimes classification "gets it wrong." That is to say, sometimes classification may generate nonsense clusters, and we might infer something that's not there. The iris data set is helpful for understanding this because we know how the flowers should be clustered. In the real world, without prior knowledge, clustering is used to uncover relationships that may not be apparent. However, it's possible to spend resources on spurious clustering results.
+
+For more on this, let's look at the graphs. Since the predictor space is four dimensions, we can't easily produce a scatterplot as in the previous example with the toy data. However, we can produce a scatterplot that shows the clusters with respect to two predictors.
+
+```{r}
+plot(iris[, c(1,2)], col = km.irisCluster$cluster+3, pch = as.numeric(iris$Species)+14, cex = 2, main = "Species Clusters with Respect to Sepal Length and Width")
+
+plot(iris[, c(3,4)], col = km.irisCluster$cluster+3, pch = as.numeric(iris$Species)+14, cex = 2, main = "Species Clusters with Respect to Petal Length and Width")
+```
+
+Based on the first graph, clusters plotted with respect to sepals, we can visualize misclassifications. The colors represent the clusters defined by the algorithm, and the shapes represent the actual species from the data set. In other words, the color is the classification, and the shape is the truth. When looking at these graphs, wherever we see a color that doesn't match with its correct shape, then there's a misclassification. All of the light blue squares are correctly classified because all of the squares are light blue. All of the circles should be magenta, and all of the triangles should be blue. Since we know that there are 14 misclassified virginica irises, it's easy to spot the magenta triangles. See if you can spot the blue circles that should be magenta. Look for these misclassifications in the graph that plots classfications against petal length and width.
+
+We've artificially reduced the dimensionality for illustration purposes. Real world data is most often high dimensional. The spacial representations in the above graphs are not as meaningful as we'd like them to be, since we may not be viewing them in the correct plain. To overcome the dimensionality problem, a scatterplot matrix can be used that plots clusters with respect to all four predictors.
+
+```{r}
+plot(iris[, -6], col = km.irisCluster$cluster+3, pch = as.numeric(iris$Species)+14, cex = 2, main = "Predicted Species by Clusters")
+```
+
+In addition to identifying misclassifications along the sepal and petal dimensions, we can observe misclassifications of species along the right-hand side and the bottom. There are blue dots with magenta and magenta dots with blue. The light blue dots are all correctly classified. The usefulness of this is limited. In high dimensional data, we simply don't have many visualization options.
+
+Now, we undertake the same exercise with Python. In the code below, we import the necessary modules and import and inspect the data. Following that procedure, we prepare the predictor space for clustering and execute the algorithm.
+
+```{python results = 'hide'}
+import os
+from math import *
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+from sklearn.cluster import KMeans
+```
+
+```{python}
+os.chdir('E:/MATH/MATH 6388 -- Machine Learning/Projects/Project 3')
+iris = pd.read_csv('IRIS.csv')
+iris.info()
+print(iris.head())
+
+predictors = iris[['Sepal.Length', 'Sepal.Width', 'Petal.Length', 'Petal.Width']]
+kmIrisCluster = KMeans(n_clusters = 3, n_init = 30)
+
+np.random.seed(0)
+kmIrisCluster.fit(predictors)
+
+labels = kmIrisCluster.predict(predictors)
+iris.insert((iris.shape[1]),'label',labels)
+iris['label'] = iris['label'].astype('category')
+
+table = pd.crosstab(iris['Species'], iris['label'])
+print(table)
+```
+
+Based on the contingency table, the Python version of the algorithm produces symmetric results to the R version. As before, the setosa iris is classified correctly, and the versicolor and virginica have troubles. Let's inspect the graph. See if you can spot the missclassifications. We omit the cluster with respect to petals and the scatterplot matrix for brevity.
+
+```{python}
+## setting colors the clusters
+irisColor = np.repeat('y', 150)
+irisColor[iris['label']==1] = 'r'
+irisColor[iris['label']==2] = 'b'
+iris.insert((iris.shape[1]),'irisColor', irisColor)
+
+## partitioning different species
+setosa = iris[iris['Species'] == 'setosa']
+versicolor = iris[iris['Species'] == 'versicolor']
+virginica = iris[iris['Species'] == 'virginica']
+
+## plotting
+plt.scatter(setosa['Sepal.Length'], setosa['Sepal.Width'], c=setosa['irisColor'], marker = '^')
+plt.scatter(versicolor['Sepal.Length'], versicolor['Sepal.Width'], c=versicolor['irisColor'], \
+            marker = 'o')
+plt.scatter(virginica['Sepal.Length'], virginica['Sepal.Width'], c=virginica['irisColor'], \
+            marker = 'X')
+plt.title('Species Clusters with respect to Sepal Width and Length')
+plt.xlabel('Sepal Length')
+plt.ylabel('Sepal Width')
+plt.show()
+```

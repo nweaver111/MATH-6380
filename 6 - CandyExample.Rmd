@@ -1,0 +1,114 @@
+---
+title: "Candy Example"
+author: "Lu Vy, Nick Weaver, & Chandler Zachary"
+date: "November 14, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=FALSE}
+setwd("E:\\MATH\\MATH 6388 -- Machine Learning\\Projects\\Project 3")
+```
+
+## Real World Data 2: Choosing Optimal Clusters
+
+Often in clustering analysis, one will know the number of clusters to use in the algorithm prior to the analysis. This may be from domain-specific knowledge or predetermined by business managers. However, one may need to determine the number of clusters without such prior knowledge. In fact, it may be more interesting to use the algorithm to uncover the optimal number of clusters rather than assume it beforehand. Making such determination can be done by executing the algorithm multiple times for different numbers of clusters and constructing a scree plot, which helps identify the optimal tradeoff between the number of clusters and within-cluster sum of squares. This final example demonstrates how such a plot is constructed.
+
+Our example uses the candy data set from 538.com's story "The Ultimate Halloween Candy Power Ranking." This data set uses binary values to indicate various characteristics of 85 different halloween candies and records the sugar content and price of each candy. These candies were pre-selected and then ranked by individuals in an online contest. The results were analyzed to reveal which characteristics made some candies better than others. This data set is illustrative for two reasons. First, there are 11 predictors, and 11 dimensions is difficult to visualize. Second, it might seem difficult at first to decide how many and which characteristics of a candy make it a good seller.
+
+First, load the data.
+```{r}
+candy = read.csv("candydata.csv.txt")
+str(candy)
+dim(candy)
+head(candy)
+```
+
+Now, imagine a candy manufacturer asking such questions as "Which characteristics should we focus on to make the best-selling candy? Should it be chocolate mixed with another ingredient? Should it be fruity or gummy?"
+
+To arrive at answers to these questions, we execute the k-means algorithm as described above. There are 11 predictors after removing the name and the win percentage, so we execute the algorithm 11 times.
+```{r}
+# Initialize total within-cluster sum of squares: wss
+wss = numeric(0)
+
+# Execute algorithm for 1 to 11 cluster centers and record wss
+for (i in 1:11) {
+  km.out = kmeans(candy[, -c(1,13)], centers = i, nstart = 30)
+  # Save total within sum of squares to wss variable
+  wss[i] = km.out$tot.withinss
+}
+```
+
+Now, we construct the scree plot.
+
+```{r}
+# Plot total within-cluster sum of squares against number of clusters
+plot(1:11, wss, type = "b", 
+     xlab = "Number of Clusters", 
+     ylab = "Within Cluster Sum of Squares")
+```
+
+When reviewing a scree plot, we look for the elbow point. This is the point where the total within-cluster sum of squares decreases at a slower rate than the increase in the number of clusters, and it indicates the optimal tradeoff between the number of clusters and the within-cluster sum of squares. This point is not always obvious and may require some subjective judgement to identify when the slopes of lines are not clearly different before and after the optimal point.
+
+In our example, the elbow point seems to be at two clusters, but some may think it's at three. It's not easy to identify whether the slope is greater than or less than one between 2 and 3 clusters. When it's unclear, one should rely on domain-specific knowledge to inform the decision. In either case, the choice of k is less arbitrary.
+
+To help the candy maker, we'd take this information and review different visualizations to see how the characteristics separate into two or three clusters and identify what might be the best predictors to focus on for making candy.
+
+Now, we reproduce the same example in Python.
+
+```{python results = 'hide'}
+import os
+from math import *
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+from scipy.spatial.distance import cdist
+from sklearn.cluster import KMeans
+```
+
+```{python}
+os.chdir('E:/MATH/MATH 6388 -- Machine Learning/Projects/Project 3')
+data = pd.read_csv('candydata.csv.txt')
+data.info()
+print(data.head())
+print(data.tail())
+
+np.random.seed(0)
+predictors = data[['chocolate', 'fruity', 'caramel', 'peanutyalmondy', 'nougat', \
+                   'crispedricewafer', 'hard', 'bar', 'pluribus', 'sugarpercent', \
+                   'pricepercent']]
+```
+
+Just as before, we execute the algorithm for three clusters.
+
+```{python}
+kmCandyCluster = KMeans(n_clusters = 3, n_init = 30)
+kmCandyCluster.fit(predictors)
+```
+
+Now, we iteratively execute the algorithm to determine the optimal number of clusters and generate the scree plot. You'll notice that the optimal number of clusters again appears to be either two or three. Someone might even think it's four.
+
+```{python}
+# Initialize total within-cluster sum of squares: wss
+wss = []
+
+# Execute algorithm for 1 to 11 cluster centers and record wss
+K = range(1, 11)
+for k in K:
+    kmCandyCluster = KMeans(n_clusters = k, n_init = 30)
+    kmCandyCluster.fit(predictors)
+    # Save total within sum of squares to wss variable
+    wss.append(sum(np.min(cdist(predictors, kmCandyCluster.cluster_centers_, 'euclidean'), \
+               axis=1)) / predictors.shape[0])
+
+# Plot total within-cluster sum of squares against number of clusters
+plt.plot(K, wss, 'bx-')
+plt.xlabel('k')
+plt.ylabel('Within Cluster Sum of Squares')
+plt.title('Scree Plot Showing Optimal Number of Clusters')
+plt.show()
+```

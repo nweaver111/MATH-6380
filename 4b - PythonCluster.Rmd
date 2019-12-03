@@ -1,0 +1,144 @@
+---
+title: "K-Means Clustering using Python"
+author: "Lu Vy, Nicholas Weaver, Chandler Zachary"
+date: "November 5, 2018"
+header-includes:
+   - \usepackage{bbm}
+   - \usepackage[utf8]{inputenc}
+   - \usepackage[english]{babel}
+   - \usepackage{amsthm}
+   - \usepackage{amsmath}
+   - \usepackage{mathtools}
+   - \usepackage{amssymb}
+   - \usepackage{commath}
+   - \usepackage{bm}
+   - \usepackage{bbm}
+output: html_document
+---
+```{python include = FALSE}
+import os
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/Mr.Vyndictive/Anaconda3/Library/plugins/platforms'
+os.chdir('C:/Users/Mr.Vyndictive/Dropbox/Machine Learning/Project 3/Code')
+from math import *
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+data = pd.read_csv('ToyData.csv')
+```
+
+## Introduction
+
+Suppose we collected data that looked something like this:
+
+```{python, echo = FALSE}
+plt.scatter(data['x'],data['y'])
+plt.show()
+```
+
+Here, we see two "clusters" of points that seem to be concentrated around different centers.  A natural question is: Does the data come from two different populations? If indeed it does, then how do we separate the points accordingly? It's easy for us to see that one "cluster" is in the upper right corner and the other is in the lower left corner, but how would a computer see this?
+
+## K-Means Clustering in Python
+
+### Preliminaries
+This tutorial assumes the reader is using Python 3.6 or higher. To cluster in Python, we must first import the following packages:
+
+```{python}
+import os
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+```
+
+Then, change our working directory as needed:
+```{python eval = FALSE}
+os.chdir('[path to folder containing data]')
+```
+
+Once that is done, we can import the data as a Pandas data frame. In our case, the data is named ToyData.csv. If you wish, you can refer to our data creation page to replicate our results.
+```{python}
+data = pd.read_csv('ToyData.csv')
+```
+
+### Exploring the Data
+
+Before we start, it is always a good idea to understand what type of data we are working with. Let's look at the summary of our data
+
+```{python}
+data.info()
+```
+
+There seems to be three columns, each with 100 entries. The first column, named "type" is a list of objects, and the next two columns, entitled "x" and "y" are made of floats. The first five rows of our data frame look like:
+
+```{python}
+print( data.head() )
+```
+
+and the last five look like:
+
+```{python}
+print( data.tail() )
+```
+
+It now looks as if each row is a point with coordinates "x" and "y." Each point is also labeled with a category, as designated in the "type" column. Two known categories are "A" and "B," but we cannot be sure if there are more. Whatever the case, Python has not recognized "type" as a category, and is still treating it as an object. It is best to change this:
+
+```{python}
+data['type'] = data['type'].astype('category')
+```
+
+Now, we are ready to build our model.
+
+### The Model
+
+First, we assign the dummy variable "model" to a particular "sklearn.cluster.k_means_.KMeans" object. We specified that there are two clusters, and we will perform the algorithm 20 times
+
+```{python}
+model = KMeans(n_clusters = 2, n_init = 20)
+```
+Then, we extract the coordinates from our dataframe,
+```{python}
+coordinates = data[['x','y']]
+```
+and we fit our model on that. We specify the NumPy seed so that you may attain the same results as us. 
+```{python}
+np.random.seed(0)
+model.fit(coordinates)
+```
+In order to create our labels, we now predict the very same data on which we have fitted the model
+```{python}
+labels = model.predict(coordinates)
+```
+and we insert it into our dataframe as a fourth column.
+```{python}
+data.insert((data.shape[1]),'label',labels)
+data['label'] = data['label'].astype('category')
+```
+We can now visualize the clusters:
+```{python}
+plt.scatter(data['x'],data['y'], c=data['label'])
+plt.show()
+```
+
+Unfortunately, yellow may not be the best color for this task, but matplotlib.pyplot.scatter automatically designates it as a second color when at least two categories are present. A simple solution is to create a new column in our dataframe that specifically designates the colors we want:
+
+```{python}
+color = np.repeat('k',data.shape[0])
+color[data['label'] == 0] = 'b'
+data.insert((data.shape[1]),'color',color)
+data['color'] = data['color'].astype('category')
+plt.scatter(data['x'],data['y'], c=data['color'])
+plt.show()
+```
+
+From a contingency table, we can see that K-Means clustering partitioned the data quite well:
+```{python}
+table = pd.crosstab(data['type'],data['label'])
+print(table)
+```
+
+# Conclusion
+
+In the actual world, data usually does not come with pre-specified labels like "A" and "B." It is the job of the data analyst to determine whether the data comes from the same or multiple different populations. Here, we present a contrived example using data we specifically fabricated to be from two different populations. Our goal was to re-create the partition given nothing other than the Euclidean distances between the points.
+
+In the real world, one may expect to find data with more than two dimensions, coming from more than two populations. Indeed, the number of populations may not even be known! In a later tutorial, we shall address the issue of what to do when this is the case.

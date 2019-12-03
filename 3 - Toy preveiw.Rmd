@@ -1,0 +1,35 @@
+---
+title: "Toy Example"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Lets get our feet wet with a simple example. The idea is to use simulated data to learn about the various functions in R and Python that can be used to perform K-means.
+
+So suppose we want to generate 100 observations from 2 different distributions (50 in each). Do this allows us to clearly know that we have two clusters and to identify to which cluster an observation truly belongs. The two distributions are as follows: 
+
+* Type A: a bivariate normal distribution with mean $= (2, 2)$ and variance $= (1, 1)$.
+* Type B: a bivariate normal distribution with mean $= (-2, -2)$ and variance $= (1, 1)$.
+
+Notice, by labeling the distribution from which each obseration originates, we are in fact creating supervised data. It is important to understand that we are not using the `type` value to determine the clusters. Rather, we are using `type` to determine how accuratly k-means performs when a true clustering exist. 
+
+As a side note, we will generate the data in R. This is simply a choice of convenience, and the code is given below so that you may also replicate the example!
+
+
+```{r synthetic data}
+set.seed(0)
+
+n <- 100
+type <- c(rep('A',n/2),rep('B',n/2))
+x <- c(rnorm(n/2, mean = 2), rnorm(n/2, mean = -2))
+y <- c(rnorm(n/2, mean = 2), rnorm(n/2, mean = -2))
+
+dat <- data.frame(type,x,y)
+plot(y ~ x, data = dat, pch = 20, cex = 2, col = (as.numeric(type)+2), main = "Synthetic Data: green = Type A, blue = Type B")
+
+```
+
+Hopefully it is clear that there are two distinct clusters in the data set. Our goal is to use cluster analysis (k-means) to place the 100 observations into k different groups. We begin by programminw with Python/R.
